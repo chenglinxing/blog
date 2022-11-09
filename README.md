@@ -20,7 +20,7 @@ isShowTitleInHome: false
 #     details: 希望更多的爱好者能够参与进来，帮助这个主题更好的成长
 title: README
 date: 2022-07-07 11:19:14
-permalink: /pages/328ca0/
+permalink: /
 categories: []
 tags: 
   - 
