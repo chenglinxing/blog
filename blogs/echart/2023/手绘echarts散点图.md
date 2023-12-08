@@ -1,3 +1,12 @@
+---
+title: 手绘echarts散点图
+date: 2023-12-08 16:50:49
+permalink: /pages/1b5666/
+categories: 
+  - echarts
+tags:
+  - vue echarts
+---
 #### 手绘echarts散点图
 
 ##### 面散点图对各种定制，echarts图表有时候不好处理，无论是数据处理还是样式处理，都会被echarts限制。

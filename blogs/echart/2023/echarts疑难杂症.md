@@ -1,13 +1,11 @@
 ---
 title: echarts疑难杂症
-date: 2023-12-08 11:13:36
-permalink: /pages/f143fe/
-tags: 
-  - echarts vue
+date: 2023-12-08 16:52:33
+permalink: /pages/55cdaa/
 categories: 
   - echarts
-permalink: /pages/5b902a/
-  - 
+tags:
+  - vue echarts
 ---
 @[TOC](echarts疑难杂症)
 
