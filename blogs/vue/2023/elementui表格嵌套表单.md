@@ -1,0 +1,310 @@
+---
+title: elementui表格嵌套表单
+date: 2023-12-08 13:23:08
+permalink: /pages/268f77/
+categories:
+tags:
+  - vue
+---
+#### elementui表格嵌套表单
+
+##### 在处理表格表单的时候，通常会遇到校验表格里面的内容，直接上代码
+
+`tableForm.vue`
+
+```vue
+<<template>
+    <div>
+    <e-button
+      type="primary"
+      v-if="!disabled"
+      @click="handleAddColumn"
+      >Add Other Charge</e-button
+    ><el-form ref="formData" :model="formData">
+      <el-table :data="formData[tableName]">
+        <el-table-column
+          v-for="item in tableHeaderTitle"
+          :key="item.prop"
+          :label="item.label"
+          align="center"
+          :width="item.width ? item.width : '150px'"
+        >
+          <template slot-scope="scope">
+            <el-form-item
+              :prop="tableName + '.' + scope.$index + '.' + item.prop"
+              :rules="item.rules"
+            >
+                <!--文本-->
+                <template v-if="item.type === 'text'">
+                  <span>{{ scope.row[item.prop] }}</span>
+                </template>
+
+                <!--input-->
+                <template v-if="item.type === 'input'">
+                  <el-input
+                    :disabled="disabled"
+                    @input="handleInput(scope, item)"
+                    v-model="scope.row[item.prop]"
+                  ></el-input>
+                </template>
+
+                <template v-if="item.type === 'switch'">
+                  <el-switch  v-model="scope.row[item.prop]"></el-switch>
+                </template>
+
+                <!--input number-->
+                <template v-if="item.type === 'number'">
+                  <el-input
+                    :disabled="disabled"
+                    type="number"
+                    @input="handleInput(scope, item, $event)"
+                    v-model.number="scope.row[item.prop]"
+                  ></el-input>
+                </template>
+
+                <!--select-->
+                <template v-if="item.type === 'select'">
+                  <el-select
+                    :disabled="disabled"
+                    v-model="scope.row[item.prop]"
+                    @change="handleChange(scope, item)"
+                  >
+                    <el-option
+                      v-for="selectItem in item.selectItems"
+                      :value="selectItem.value"
+                      :label="selectItem.label"
+                      :key="selectItem.value"
+                    ></el-option>
+                  </el-select>
+              </template>
+            </el-form-item>
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          v-if="!disabled"
+          width="80"
+          fixed="right"
+          align="center"
+          :label="$t('billing.action')"
+        >
+           <template slot-scope="scope">
+            <el-button
+              type="danger"
+              @click="handleDeleteCurrentRow(scope)"
+            ></el-button
+          ></template>
+        </el-table-column>
+      </el-table>
+    </el-form>
+    </div>
+</template>
+
+<script>
+export default {
+  props: {
+    //表格数据
+    tableData: {
+      type: Array,
+      default: () => [],
+        },
+    //表单
+    formData: {
+      type: Object,
+      default: () => {},
+    },
+    //表头及其他参数
+    tableHeaderTitle: {
+      type: Array,
+      default: () => [],
+        },
+    //表单名 不传默认tableData
+    tableName: {
+      type: String,
+      default: "tableData",
+        },
+    //提供预览页面或其他条件下用
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  data() {
+    return {
+    };
+  },
+  methods: {
+    //子组件表单校验
+    validateForm() {
+      let flag = null;
+      this.$refs["formData"].validate((valid) => {
+        flag = !!valid;
+      });
+      console.log(flag, "vvvvvvvvvvvvvvvv");
+      return flag;
+    },
+
+    //清楚表单校验
+    clearValidateForm() { 
+      this.$refs['formData'].clearValidate()
+    },
+
+    //新增行
+    handleAddColumn() {
+      let arr = this.tableHeaderTitle.map((i) => {
+        return i.prop;
+      });
+      let obj = {};
+      for (let i of arr) {
+          obj[i] = "";
+      }
+      this.tableData.push(obj);
+    },
+
+    //删除当前行
+    handleDeleteCurrentRow(scope) {
+      let { row, $index } = scope;
+      console.log(row, $index, "删除");
+      this.$confirm("Are you sure delete this list?", "", {
+        confirmButtonText: "Confirm",
+        cancelButtonText: "Cancel",
+        type: "warning",
+      })
+        .then(() => {
+          this.tableData.splice($index, 1);
+        })
+        .catch(() => {
+        });
+    },
+
+    //input
+    handleInput(scope, formItem, val) {
+      console.log(scope, formItem, val, "input");
+    },
+
+    //select
+    handleChange(scope, formItem) {
+      console.log(scope, formItem, "select");
+    },
+  },
+};
+</script>
+```
+
+`父组件`
+
+```vue
+<el-form
+          ref="formData"
+          :model="formData"
+          label-width="140px"
+          size="small"
+          :rules="formRules"
+         >
+<el-form-item :label="$t('billing.remark')" prop="a">
+                  <e-input
+                    :disabled="whetherDisabled"
+                    :autosize="{ minRows: 4 }"
+                    v-model="formData.a"
+                    placeholder="Please Input"
+                  ></e-input>
+                </el-form-item>
+    
+    <el-form-item :label="$t('billing.remark')" prop="b">
+                  <e-input
+                    :disabled="whetherDisabled"
+                    :autosize="{ minRows: 4 }"
+                    v-model="formData.b"
+                    placeholder="Please Input"
+                  ></e-input>
+                </el-form-item>
+</el-form>
+
+<!--defaultTable-->
+<table-form
+          ref="tableForm"
+          :formData="formData"
+          :tableData="formData.tableData"
+          :tableHeaderTitle="tableHeaderTitle"
+          tableName="tableData"
+/>
+
+<script>
+	export default{
+        components:{
+            TableFrom:()=>import("@/components")
+        },
+        data(){
+            return{
+                //当前formData为测试数据
+                formData:{
+                    a:"",
+                    b:"",
+                    c:"",
+                    tableData:[
+                        {
+                            columnA:"",
+                            cilumnB:"",
+                            columnC:""
+                        }
+                    ],//tableData数据仅做参考
+                },
+                formRules:[
+                    a: [{ required: true, trigger: "blur" }],
+                    b: [{ required: true, trigger: "blur" }],
+                ],
+                tableHeaderTitle:[
+                  {
+                      prop: "genType",
+                      label: "billing.genType",
+                      type: "text",
+        		  },
+       			  {
+                      prop: "chargeCode",
+                      label: "billing.chargeCode",
+                      type: "select",
+                      selectItems: [],
+                      rules: [
+                        {
+                          required: true,
+                          trigger: "blur",
+                          message: "ChargeCode is required",
+                        },
+          			  ],
+        		  },
+        		  { prop: "chargeName", 
+                   label: "billing.chargeName", 
+                   type: "text" 
+                  },
+                ]
+            },
+        },
+        methods:{
+            handleSave(formName) {
+              let flag = this.$refs["tableForm"].validateForm();
+              console.log(this.formData, this.formData.chargeInfoTableData, "Save");
+              this.$refs[formName].validate(async (valid) => {
+                if (valid) {
+                  if (!flag) {
+                    this.$notify.warning({
+                      title: "Required items exist!",
+                    });
+                    return false;
+                  }
+                  this.$emit("handleBack1", true);
+                } else {
+                  this.$notify.warning({
+                    title: "Required items exist!",
+                  });
+                  return false;
+                }
+      			});
+    		},
+        }
+    }
+</script>
+```
+
+<font color="red">注意：</font>表格表单最核心的就是校验表格里面填写内容，`:prop="tableName + '.' + scope.$index + '.' + item.prop"`这块拼接的地方不能出错
+
+以上就是表格嵌套表单并触发校验的案例。

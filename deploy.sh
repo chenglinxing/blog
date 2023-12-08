@@ -3,6 +3,9 @@
 # 确保脚本抛出遇到的错误
 set -e
 
+# 删除public文件
+rm -rf public
+
 # 生成静态文件
 npm run build
 
@@ -17,6 +20,7 @@ git add -A
 git commit -m 'depoly脚本更新'
 
 # 如果发布到 https://<USERNAME>.github.io/<REPO>
-git push -f https://github.com/chenglinxing/blogs.git master
+# git push -f https://github.com/chenglinxing/blogs.git master
+git push -f https://github.com/chenglinxing/chenglinxing.github.io.git master
 
 cd -
